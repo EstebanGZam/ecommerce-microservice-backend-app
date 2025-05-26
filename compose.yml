@@ -1,70 +1,133 @@
+# Define common configurations that can be reused
+x-common-config: &common-config
+  environment:
+    - SPRING_PROFILES_ACTIVE=dev
+    - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+    - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://service-discovery-container:8761/eureka
+    - eureka.client.service-url.defaultZone=http://service-discovery-container:8761/eureka
+    - EUREKA_INSTANCE=service-discovery-container
+    - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+    - EUREKA_CLIENT_FETCH_REGISTRY=true
+    - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+    - EUREKA_CLIENT_HEALTHCHECK_ENABLED=true
+    - EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS=10
+    - EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS=30
+    - EUREKA_CLIENT_REGION=default
+  networks:
+    - microservices-network
+  depends_on:
+    service-discovery-container:
+      condition: service_healthy
+    zipkin:
+      condition: service_healthy
+  restart: on-failure
 
-version: '3'
+# Define combined config
+x-combined-config: &combined-config
+  <<: *common-config
+  depends_on:
+    - cloud-config-container
+
 services:
-  zipkin-container:
+  zipkin:
     image: openzipkin/zipkin
     ports:
       - 9411:9411
+    networks:
+      - microservices-network
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9411/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   service-discovery-container:
     image: selimhorri/service-discovery-ecommerce-boot:0.1.0
     ports:
       - 8761:8761
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+    networks:
+      - microservices-network
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
   cloud-config-container:
     image: selimhorri/cloud-config-ecommerce-boot:0.1.0
     ports:
       - 9296:9296
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
+    <<: *common-config
+
   api-gateway-container:
     image: selimhorri/api-gateway-ecommerce-boot:0.1.0
     ports:
       - 8080:8080
+    <<: *combined-config
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      - EUREKA_INSTANCE_HOSTNAME=api-gateway-container
   proxy-client-container:
     image: selimhorri/proxy-client-ecommerce-boot:0.1.0
     ports:
       - 8900:8900
+    <<: *combined-config
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      - EUREKA_INSTANCE_HOSTNAME=proxy-client-container
+
   order-service-container:
     image: selimhorri/order-service-ecommerce-boot:0.1.0
     ports:
       - 8300:8300
+    <<: *combined-config
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      - EUREKA_INSTANCE_HOSTNAME=order-service-container
+
   payment-service-container:
     image: selimhorri/payment-service-ecommerce-boot:0.1.0
     ports:
       - 8400:8400
+    <<: *combined-config
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      - EUREKA_INSTANCE_HOSTNAME=payment-service-container
+
   product-service-container:
     image: selimhorri/product-service-ecommerce-boot:0.1.0
     ports:
       - 8500:8500
+    <<: *combined-config
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      - EUREKA_INSTANCE_HOSTNAME=product-service-container
+
   shipping-service-container:
     image: selimhorri/shipping-service-ecommerce-boot:0.1.0
     ports:
       - 8600:8600
+    <<: *combined-config
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      - EUREKA_INSTANCE_HOSTNAME=shipping-service-container
+
   user-service-container:
     image: selimhorri/user-service-ecommerce-boot:0.1.0
     ports:
       - 8700:8700
+    <<: *combined-config
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      - EUREKA_INSTANCE_HOSTNAME=user-service-container
+
   favourite-service-container:
     image: selimhorri/favourite-service-ecommerce-boot:0.1.0
     ports:
       - 8800:8800
+    <<: *combined-config
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      - EUREKA_INSTANCE_HOSTNAME=favourite-service-container
 
-
-
+networks:
+  microservices-network:
+    driver: bridge
+    name: microservices-network
