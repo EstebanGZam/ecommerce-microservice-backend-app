@@ -106,7 +106,7 @@ services:
     <<: *combined-config
 
   user-service-container:
-    image: selimhorri/user-service-ecommerce-boot:0.1.0
+    image: esteban282/user-service-ecommerce-boot:0.1.0
     ports:
       - 8700:8700
     <<: *combined-config
