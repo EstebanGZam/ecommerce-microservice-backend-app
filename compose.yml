@@ -3,16 +3,16 @@ x-common-config: &common-config
   environment:
     - SPRING_PROFILES_ACTIVE=dev
     - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
-    - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://service-discovery-container:8761/eureka
-    - eureka.client.service-url.defaultZone=http://service-discovery-container:8761/eureka
-    - EUREKA_INSTANCE=service-discovery-container
+    - EUREKA_CLIENT_REGION=default
+    - EUREKA_CLIENT_AVAILABILITYZONES_DEFAULT=myzone
+    - EUREKA_CLIENT_SERVICEURL_MYZONE=http://service-discovery-container:8761/eureka
+    - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery-container:8761/eureka/
     - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
     - EUREKA_CLIENT_FETCH_REGISTRY=true
     - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
     - EUREKA_CLIENT_HEALTHCHECK_ENABLED=true
     - EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS=10
     - EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS=30
-    - EUREKA_CLIENT_REGION=default
   networks:
     - microservices-network
   depends_on:
@@ -26,7 +26,12 @@ x-common-config: &common-config
 x-combined-config: &combined-config
   <<: *common-config
   depends_on:
-    - cloud-config-container
+    service-discovery-container:
+      condition: service_healthy
+    zipkin:
+      condition: service_healthy
+    cloud-config-container:
+      condition: service_started
 
 services:
   zipkin:
@@ -49,6 +54,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - EUREKA_INSTANCE=service-discovery-container
     networks:
       - microservices-network
     healthcheck:
@@ -65,67 +71,51 @@ services:
     <<: *common-config
 
   api-gateway-container:
-    image: selimhorri/api-gateway-ecommerce-boot:0.1.0
+    image: esteban282/api-gateway-ecommerce-boot:0.1.0
     ports:
       - 8080:8080
     <<: *combined-config
-    environment:
-      - EUREKA_INSTANCE_HOSTNAME=api-gateway-container
   proxy-client-container:
     image: selimhorri/proxy-client-ecommerce-boot:0.1.0
     ports:
       - 8900:8900
     <<: *combined-config
-    environment:
-      - EUREKA_INSTANCE_HOSTNAME=proxy-client-container
 
   order-service-container:
     image: selimhorri/order-service-ecommerce-boot:0.1.0
     ports:
       - 8300:8300
     <<: *combined-config
-    environment:
-      - EUREKA_INSTANCE_HOSTNAME=order-service-container
 
   payment-service-container:
     image: selimhorri/payment-service-ecommerce-boot:0.1.0
     ports:
       - 8400:8400
     <<: *combined-config
-    environment:
-      - EUREKA_INSTANCE_HOSTNAME=payment-service-container
 
   product-service-container:
     image: selimhorri/product-service-ecommerce-boot:0.1.0
     ports:
       - 8500:8500
     <<: *combined-config
-    environment:
-      - EUREKA_INSTANCE_HOSTNAME=product-service-container
 
   shipping-service-container:
     image: selimhorri/shipping-service-ecommerce-boot:0.1.0
     ports:
       - 8600:8600
     <<: *combined-config
-    environment:
-      - EUREKA_INSTANCE_HOSTNAME=shipping-service-container
 
   user-service-container:
     image: selimhorri/user-service-ecommerce-boot:0.1.0
     ports:
       - 8700:8700
     <<: *combined-config
-    environment:
-      - EUREKA_INSTANCE_HOSTNAME=user-service-container
 
   favourite-service-container:
     image: selimhorri/favourite-service-ecommerce-boot:0.1.0
     ports:
       - 8800:8800
     <<: *combined-config
-    environment:
-      - EUREKA_INSTANCE_HOSTNAME=favourite-service-container
 
   jenkins:
     build:
@@ -137,6 +127,7 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.kube/minikube-config:/var/jenkins_home/.kube/config
     networks:
       - microservices-network
     environment:
