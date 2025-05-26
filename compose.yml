@@ -100,7 +100,7 @@ services:
     <<: *combined-config
 
   shipping-service-container:
-    image: selimhorri/shipping-service-ecommerce-boot:0.1.0
+    image: esteban282/shipping-service-ecommerce-boot:0.1.0
     ports:
       - 8600:8600
     <<: *combined-config
