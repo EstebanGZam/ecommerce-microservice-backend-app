@@ -127,7 +127,27 @@ services:
     environment:
       - EUREKA_INSTANCE_HOSTNAME=favourite-service-container
 
+  jenkins:
+    build:
+      context: .
+      dockerfile: jenkins/Dockerfile
+    ports:
+      - "9000:8080" # Jenkins web interface (changed from 8080 to avoid conflict with API Gateway)
+      - "50000:50000" # Jenkins agents
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - microservices-network
+    environment:
+      - JENKINS_OPTS="--prefix=/jenkins"
+    restart: unless-stopped
+
 networks:
   microservices-network:
     driver: bridge
     name: microservices-network
+
+volumes:
+  jenkins_home:
+    driver: local
