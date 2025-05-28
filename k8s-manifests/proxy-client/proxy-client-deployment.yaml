@@ -27,16 +27,16 @@ spec:
             - configMapRef:
                 name: common-environment-variables
           name: proxy-client
-          image: selimhorri/proxy-client-ecommerce-boot:0.1.0
+          image: esteban282/proxy-client-ecommerce-boot:0.1.0
           ports:
             - containerPort: 8900
           resources:
             requests:
-              memory: "128Mi"
+              memory: "256Mi"
               cpu: "250m"
-              ephemeral-storage: "500Mi"
+              ephemeral-storage: "768Mi"
             limits:
-              memory: "768Mi"
-              cpu: "750m"
+              memory: "512Mi"
+              cpu: "500m"
               ephemeral-storage: "1Gi"
       restartPolicy: Always

@@ -66,7 +66,7 @@ services:
       start_period: 30s
 
   service-discovery:
-    image: selimhorri/service-discovery-ecommerce-boot:0.1.0
+    image: esteban282/service-discovery-ecommerce-boot:0.1.0
     ports:
       - 8761:8761
     environment:
@@ -83,7 +83,7 @@ services:
       start_period: 120s
 
   cloud-config:
-    image: selimhorri/cloud-config-ecommerce-boot:0.1.0
+    image: esteban282/cloud-config-ecommerce-boot:0.1.0
     ports:
       - 9296:9296
     <<: *common-config
@@ -94,7 +94,7 @@ services:
       - 8080:8080
     <<: *combined-config
   proxy-client:
-    image: selimhorri/proxy-client-ecommerce-boot:0.1.0
+    image: esteban282/proxy-client-ecommerce-boot:0.1.0
     ports:
       - 8900:8900
     <<: *combined-config
@@ -106,13 +106,13 @@ services:
     <<: *combined-config
 
   payment-service:
-    image: selimhorri/payment-service-ecommerce-boot:0.1.0
+    image: esteban282/payment-service-ecommerce-boot:0.1.0
     ports:
       - 8400:8400
     <<: *combined-config
 
   product-service:
-    image: selimhorri/product-service-ecommerce-boot:0.1.0
+    image: esteban282/product-service-ecommerce-boot:0.1.0
     ports:
       - 8500:8500
     <<: *combined-config
@@ -130,7 +130,7 @@ services:
     <<: *combined-config
 
   favourite-service:
-    image: selimhorri/favourite-service-ecommerce-boot:0.1.0
+    image: esteban282/favourite-service-ecommerce-boot:0.1.0
     ports:
       - 8800:8800
     <<: *combined-config

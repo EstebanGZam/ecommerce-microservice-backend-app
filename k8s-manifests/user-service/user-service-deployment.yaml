@@ -33,13 +33,13 @@ spec:
               protocol: TCP
           resources:
             requests:
-              memory: "384Mi"
+              memory: "128Mi"
               cpu: "250m"
-              ephemeral-storage: "1Gi"
+              ephemeral-storage: "512Mi"
             limits:
               memory: "512Mi"
               cpu: "500m"
-              ephemeral-storage: "2Gi"
+              ephemeral-storage: "1Gi"
           readinessProbe:
             httpGet:
               path: /user-service/actuator/health

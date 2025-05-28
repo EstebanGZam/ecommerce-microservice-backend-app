@@ -26,7 +26,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: common-environment-variables
-          image: selimhorri/payment-service-ecommerce-boot:0.1.0
+          image: esteban282/payment-service-ecommerce-boot:0.1.0
           name: payment-service
           ports:
             - containerPort: 8400
@@ -35,9 +35,25 @@ spec:
             requests:
               memory: "512Mi"
               cpu: "250m"
-              ephemeral-storage: "1Gi"
+              ephemeral-storage: "512Mi"
             limits:
               memory: "768Mi"
               cpu: "500m"
-              ephemeral-storage: "2Gi"
+              ephemeral-storage: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /payment-service/actuator/health
+              port: 8400
+            initialDelaySeconds: 120
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /payment-service/actuator/health
+              port: 8400
+            initialDelaySeconds: 150
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 3
       restartPolicy: Always 

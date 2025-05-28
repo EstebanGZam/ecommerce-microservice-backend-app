@@ -29,18 +29,34 @@ spec:
           envFrom:
             - configMapRef:
                 name: common-environment-variables
-          image: selimhorri/service-discovery-ecommerce-boot:0.1.0
+          image: esteban282/service-discovery-ecommerce-boot:0.1.0
           name: service-discovery
           ports:
             - containerPort: 8761
               protocol: TCP
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "300m"
-              ephemeral-storage: "1Gi"
+              memory: "256Mi"
+              cpu: "250m"
+              ephemeral-storage: "512Mi"
             limits:
-              memory: "768Mi"
-              cpu: "750m"
-              ephemeral-storage: "2Gi"
+              memory: "512Mi"
+              cpu: "500m"
+              ephemeral-storage: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8761
+            initialDelaySeconds: 120
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8761
+            initialDelaySeconds: 150
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 3
       restartPolicy: Always

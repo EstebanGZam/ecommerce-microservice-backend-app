@@ -26,7 +26,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: common-environment-variables
-          image: selimhorri/favourite-service-ecommerce-boot:0.1.0
+          image: esteban282/favourite-service-ecommerce-boot:0.1.0
           name: favourite-service
           ports:
             - containerPort: 8800
@@ -35,9 +35,25 @@ spec:
             requests:
               memory: "384Mi"
               cpu: "300m"
-              ephemeral-storage: "1Gi"
+              ephemeral-storage: "512Mi"
             limits:
-              memory: "768Mi"
-              cpu: "750m"
-              ephemeral-storage: "2Gi"
+              memory: "512Mi"
+              cpu: "500m"
+              ephemeral-storage: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /favourite-service/actuator/health
+              port: 8800
+            initialDelaySeconds: 120
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /favourite-service/actuator/health
+              port: 8800
+            initialDelaySeconds: 150
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 3
       restartPolicy: Always 

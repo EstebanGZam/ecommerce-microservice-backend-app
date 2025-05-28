@@ -4,6 +4,8 @@ metadata:
   name: common-environment-variables
   namespace: ecommerce-ns
 data:
+  JAVA_OPTS: "-Xms256m -Xmx512m"
+  SPRING_CLOUD_CONFIG_URI: "http://cloud-config.ecommerce-ns.svc.cluster.local:9296" 
   EUREKA_CLIENT_AVAILABILITYZONES_DEFAULT: myzone
   EUREKA_CLIENT_FETCH_REGISTRY: "true"
   EUREKA_CLIENT_HEALTHCHECK_ENABLED: "true"
@@ -15,4 +17,4 @@ data:
   EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: "10"
   EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
   SPRING_PROFILES_ACTIVE: dev
-  SPRING_ZIPKIN_BASE_URL: http://zipkin.ecommerce-ns.svc.cluster.local:9411 
+  SPRING_ZIPKIN_BASE_URL: http://zipkin.ecommerce-ns.svc.cluster.local:9411
