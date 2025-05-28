@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: proxy-client
-  namespace: ecommerce-ns
+  namespace: dev
   labels:
     io.kompose.service: proxy-client
 spec:
@@ -22,7 +22,9 @@ spec:
       containers:
         - env:
             - name: SPRING_CONFIG_IMPORT
-              value: optional:configserver:http://cloud-config.ecommerce-ns.svc.cluster.local:9296/
+              value: optional:configserver:http://cloud-config.dev.svc.cluster.local:9296/
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: proxy-client
           envFrom:
             - configMapRef:
                 name: common-environment-variables

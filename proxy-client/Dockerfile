@@ -20,6 +20,14 @@ ARG GROUP_ID=1001
 ENV SPRING_PROFILES_ACTIVE=${ENVIRONMENT}
 ENV JAVA_OPTS="-Xmx512m -Xms256m -XX:+UseG1GC -XX:+UseContainerSupport"
 ENV SERVER_PORT=8900
+ENV EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
+ENV SPRING_CLOUD_CONFIG_URI=http://cloud-config:9296
+ENV USER_SERVICE_HOST=http://user-service:8700
+ENV PRODUCT_SERVICE_HOST=http://product-service:8500
+ENV ORDER_SERVICE_HOST=http://order-service:8300
+ENV FAVOURITE_SERVICE_HOST=http://favourite-service:8800
+ENV SHIPPING_SERVICE_HOST=http://shipping-service:8600
+ENV PAYMENT_SERVICE_HOST=http://payment-service:8400
 
 RUN groupadd -g ${GROUP_ID} appuser && \
     useradd -r -u ${USER_ID} -g appuser appuser && \
