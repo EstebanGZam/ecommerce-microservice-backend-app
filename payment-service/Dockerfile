@@ -21,9 +21,8 @@ ENV JAVA_OPTS="-Xmx512m -Xms256m -XX:+UseG1GC -XX:+UseContainerSupport"
 ENV SERVER_PORT=8400
 
 RUN groupadd -g ${GROUP_ID} appuser && \
-    useradd -r -u ${USER_ID} -g appuser appuser
-
-RUN mkdir -p /home/app && \
+    useradd -r -u ${USER_ID} -g appuser appuser && \
+    mkdir -p /home/app && \
     chown -R appuser:appuser /home/app
 
 WORKDIR /home/app

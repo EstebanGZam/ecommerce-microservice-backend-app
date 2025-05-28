@@ -1,12 +1,8 @@
-
 version: '3'
 services:
-  api-gateway-container:
+  api-gateway:
     image: selimhorri/api-gateway-ecommerce-boot:0.1.0
     ports:
       - 8080:8080
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-
-
-

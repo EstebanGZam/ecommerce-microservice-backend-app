@@ -5,59 +5,55 @@ metadata:
     kompose.cmd: kompose convert -f compose.yml -o k8s-manifests/
     kompose.version: 1.36.0 (ae2a39403)
   labels:
-    io.kompose.service: api-gateway-container
-  name: api-gateway-container
+    io.kompose.service: api-gateway
+  name: api-gateway
+  namespace: ecommerce-ns
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: api-gateway-container
+      io.kompose.service: api-gateway
   template:
     metadata:
       labels:
-        io.kompose.service: api-gateway-container
+        io.kompose.service: api-gateway
     spec:
       automountServiceAccountToken: false
       containers:
         - env:
-            - name: EUREKA_CLIENT_AVAILABILITYZONES_DEFAULT
-              value: myzone
-            - name: EUREKA_CLIENT_FETCH_REGISTRY
-              value: "true"
-            - name: EUREKA_CLIENT_HEALTHCHECK_ENABLED
-              value: "true"
-            - name: EUREKA_CLIENT_REGION
-              value: default
-            - name: EUREKA_CLIENT_REGISTER_WITH_EUREKA
-              value: "true"
-            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-              value: http://service-discovery-container:8761/eureka/
-            - name: EUREKA_CLIENT_SERVICEURL_MYZONE
-              value: http://service-discovery-container:8761/eureka
-            - name: EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS
-              value: "30"
-            - name: EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS
-              value: "10"
-            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
-              value: "false"
-            - name: SPRING_CONFIG_IMPORT
-              value: optional:configserver:http://cloud-config-container:9296/
-            - name: SPRING_PROFILES_ACTIVE
-              value: dev
-            - name: SPRING_ZIPKIN_BASE_URL
-              value: http://zipkin:9411
+            - name: SPRING_CONFIG_IMPORT # Specific to this service
+              value: optional:configserver:http://cloud-config.ecommerce-ns.svc.cluster.local:9296/
+          envFrom:
+            - configMapRef:
+                name: common-environment-variables
           image: esteban282/api-gateway-ecommerce-boot:0.1.0
-          name: api-gateway-container
+          name: api-gateway
           ports:
             - containerPort: 8080
               protocol: TCP
           resources:
             requests:
-              cpu: "200m"
-              memory: "128Mi"
+              memory: "384Mi"
+              cpu: "250m"
               ephemeral-storage: "1Gi"
             limits:
+              memory: "512Mi"
               cpu: "500m"
-              memory: "1Gi"
               ephemeral-storage: "2Gi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 150
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 3
       restartPolicy: Always 

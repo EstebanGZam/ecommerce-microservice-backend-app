@@ -5,8 +5,8 @@ x-common-config: &common-config
     - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
     - EUREKA_CLIENT_REGION=default
     - EUREKA_CLIENT_AVAILABILITYZONES_DEFAULT=myzone
-    - EUREKA_CLIENT_SERVICEURL_MYZONE=http://service-discovery-container:8761/eureka
-    - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery-container:8761/eureka/
+    - EUREKA_CLIENT_SERVICEURL_MYZONE=http://service-discovery:8761/eureka
+    - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
     - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
     - EUREKA_CLIENT_FETCH_REGISTRY=true
     - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
@@ -16,7 +16,7 @@ x-common-config: &common-config
   networks:
     - microservices-network
   depends_on:
-    service-discovery-container:
+    service-discovery:
       condition: service_healthy
     zipkin:
       condition: service_healthy
@@ -30,25 +30,25 @@ x-service-config: &service-config
     - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
     - EUREKA_CLIENT_REGION=default
     - EUREKA_CLIENT_AVAILABILITYZONES_DEFAULT=myzone
-    - EUREKA_CLIENT_SERVICEURL_MYZONE=http://service-discovery-container:8761/eureka
-    - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery-container:8761/eureka/
+    - EUREKA_CLIENT_SERVICEURL_MYZONE=http://service-discovery:8761/eureka
+    - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
     - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
     - EUREKA_CLIENT_FETCH_REGISTRY=true
     - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
     - EUREKA_CLIENT_HEALTHCHECK_ENABLED=true
     - EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS=10
     - EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS=30
-    - SPRING_CONFIG_IMPORT=optional:configserver:http://cloud-config-container:9296/
+    - SPRING_CONFIG_IMPORT=optional:configserver:http://cloud-config:9296/
 
 # Define combined config
 x-combined-config: &combined-config
   <<: *service-config
   depends_on:
-    service-discovery-container:
+    service-discovery:
       condition: service_healthy
     zipkin:
       condition: service_healthy
-    cloud-config-container:
+    cloud-config:
       condition: service_started
 
 services:
@@ -65,14 +65,14 @@ services:
       retries: 3
       start_period: 30s
 
-  service-discovery-container:
+  service-discovery:
     image: selimhorri/service-discovery-ecommerce-boot:0.1.0
     ports:
       - 8761:8761
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
-      - EUREKA_INSTANCE=service-discovery-container
+      - EUREKA_INSTANCE=service-discovery
     networks:
       - microservices-network
     healthcheck:
@@ -82,54 +82,54 @@ services:
       retries: 5
       start_period: 120s
 
-  cloud-config-container:
+  cloud-config:
     image: selimhorri/cloud-config-ecommerce-boot:0.1.0
     ports:
       - 9296:9296
     <<: *common-config
 
-  api-gateway-container:
+  api-gateway:
     image: esteban282/api-gateway-ecommerce-boot:0.1.0
     ports:
       - 8080:8080
     <<: *combined-config
-  proxy-client-container:
+  proxy-client:
     image: selimhorri/proxy-client-ecommerce-boot:0.1.0
     ports:
       - 8900:8900
     <<: *combined-config
 
-  order-service-container:
+  order-service:
     image: esteban282/order-service-ecommerce-boot:0.1.0
     ports:
       - 8300:8300
     <<: *combined-config
 
-  payment-service-container:
+  payment-service:
     image: selimhorri/payment-service-ecommerce-boot:0.1.0
     ports:
       - 8400:8400
     <<: *combined-config
 
-  product-service-container:
+  product-service:
     image: selimhorri/product-service-ecommerce-boot:0.1.0
     ports:
       - 8500:8500
     <<: *combined-config
 
-  shipping-service-container:
+  shipping-service:
     image: esteban282/shipping-service-ecommerce-boot:0.1.0
     ports:
       - 8600:8600
     <<: *combined-config
 
-  user-service-container:
+  user-service:
     image: esteban282/user-service-ecommerce-boot:0.1.0
     ports:
       - 8700:8700
     <<: *combined-config
 
-  favourite-service-container:
+  favourite-service:
     image: selimhorri/favourite-service-ecommerce-boot:0.1.0
     ports:
       - 8800:8800

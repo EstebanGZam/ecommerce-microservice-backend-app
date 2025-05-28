@@ -135,17 +135,17 @@ All the **services**, **databases**, and **messaging service** will run in paral
 
 ```bash
 Creating network "ecommerce-microservice-backend-app_default" with the default driver
-Creating ecommerce-microservice-backend-app_api-gateway-container_1       ... done
-Creating ecommerce-microservice-backend-app_favourite-service-container_1 ... done
-Creating ecommerce-microservice-backend-app_service-discovery-container_1 ... done
-Creating ecommerce-microservice-backend-app_shipping-service-container_1  ... done
-Creating ecommerce-microservice-backend-app_order-service-container_1     ... done
-Creating ecommerce-microservice-backend-app_user-service-container_1      ... done
-Creating ecommerce-microservice-backend-app_payment-service-container_1   ... done
-Creating ecommerce-microservice-backend-app_product-service-container_1   ... done
-Creating ecommerce-microservice-backend-app_proxy-client-container_1      ... done
-Creating ecommerce-microservice-backend-app_zipkin-container_1            ... done
-Creating ecommerce-microservice-backend-app_cloud-config-container_1      ... done
+Creating ecommerce-microservice-backend-app_api-gateway_1       ... done
+Creating ecommerce-microservice-backend-app_favourite-service_1 ... done
+Creating ecommerce-microservice-backend-app_service-discovery_1 ... done
+Creating ecommerce-microservice-backend-app_shipping-service_1  ... done
+Creating ecommerce-microservice-backend-app_order-service_1     ... done
+Creating ecommerce-microservice-backend-app_user-service_1      ... done
+Creating ecommerce-microservice-backend-app_payment-service_1   ... done
+Creating ecommerce-microservice-backend-app_product-service_1   ... done
+Creating ecommerce-microservice-backend-app_proxy-client_1      ... done
+Creating ecommerce-microservice-backend-app_zipkin_1            ... done
+Creating ecommerce-microservice-backend-app_cloud-config_1      ... done
 ```
 ### Access proxy-client APIs
 You can manually test `proxy-client` APIs throughout its **Swagger** interface at the following
@@ -597,17 +597,17 @@ selim@:~/ecommerce-microservice-backend-app$ docker-compose -f compose.yml down 
  And you should see output like the following:
 
 ```bash
-Removing ecommerce-microservice-backend-app_payment-service-container_1   ... done
-Removing ecommerce-microservice-backend-app_zipkin-container_1            ... done
-Removing ecommerce-microservice-backend-app_service-discovery-container_1 ... done
-Removing ecommerce-microservice-backend-app_product-service-container_1   ... done
-Removing ecommerce-microservice-backend-app_cloud-config-container_1      ... done
-Removing ecommerce-microservice-backend-app_proxy-client-container_1      ... done
-Removing ecommerce-microservice-backend-app_order-service-container_1     ... done
-Removing ecommerce-microservice-backend-app_user-service-container_1      ... done
-Removing ecommerce-microservice-backend-app_shipping-service-container_1  ... done
-Removing ecommerce-microservice-backend-app_api-gateway-container_1       ... done
-Removing ecommerce-microservice-backend-app_favourite-service-container_1 ... done
+Removing ecommerce-microservice-backend-app_payment-service_1   ... done
+Removing ecommerce-microservice-backend-app_zipkin_1            ... done
+Removing ecommerce-microservice-backend-app_service-discovery_1 ... done
+Removing ecommerce-microservice-backend-app_product-service_1   ... done
+Removing ecommerce-microservice-backend-app_cloud-config_1      ... done
+Removing ecommerce-microservice-backend-app_proxy-client_1      ... done
+Removing ecommerce-microservice-backend-app_order-service_1     ... done
+Removing ecommerce-microservice-backend-app_user-service_1      ... done
+Removing ecommerce-microservice-backend-app_shipping-service_1  ... done
+Removing ecommerce-microservice-backend-app_api-gateway_1       ... done
+Removing ecommerce-microservice-backend-app_favourite-service_1 ... done
 Removing network ecommerce-microservice-backend-app_default
 ```
 ### The End

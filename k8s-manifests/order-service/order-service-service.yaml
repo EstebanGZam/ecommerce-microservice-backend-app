@@ -5,12 +5,13 @@ metadata:
     kompose.cmd: kompose convert -f compose.yml -o k8s-manifests/
     kompose.version: 1.36.0 (ae2a39403)
   labels:
-    io.kompose.service: order-service-container
-  name: order-service-container
+    io.kompose.service: order-service
+  name: order-service
+  namespace: ecommerce-ns
 spec:
   ports:
     - name: "8300"
       port: 8300
       targetPort: 8300
   selector:
-    io.kompose.service: order-service-container
+    io.kompose.service: order-service

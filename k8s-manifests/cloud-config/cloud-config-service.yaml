@@ -5,12 +5,13 @@ metadata:
     kompose.cmd: kompose convert -f compose.yml -o k8s-manifests/
     kompose.version: 1.36.0 (ae2a39403)
   labels:
-    io.kompose.service: cloud-config-container
-  name: cloud-config-container
+    io.kompose.service: cloud-config
+  name: cloud-config
+  namespace: ecommerce-ns
 spec:
   ports:
     - name: "9296"
       port: 9296
       targetPort: 9296
   selector:
-    io.kompose.service: cloud-config-container
+    io.kompose.service: cloud-config

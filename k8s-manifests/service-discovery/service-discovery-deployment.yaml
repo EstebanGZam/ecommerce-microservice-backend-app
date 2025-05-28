@@ -5,54 +5,42 @@ metadata:
     kompose.cmd: kompose convert -f compose.yml -o k8s-manifests/
     kompose.version: 1.36.0 (ae2a39403)
   labels:
-    io.kompose.service: service-discovery-container
-  name: service-discovery-container
+    io.kompose.service: service-discovery
+  name: service-discovery
+  namespace: ecommerce-ns
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: service-discovery-container
+      io.kompose.service: service-discovery
   template:
     metadata:
       annotations:
         kompose.cmd: kompose convert -f compose.yml -o k8s-manifests/
         kompose.version: 1.36.0 (ae2a39403)
       labels:
-        io.kompose.service: service-discovery-container
+        io.kompose.service: service-discovery
     spec:
       automountServiceAccountToken: false
       containers:
         - env:
             - name: EUREKA_INSTANCE
-              value: service-discovery-container
-            - name: SPRING_PROFILES_ACTIVE
-              value: dev
-            - name: SPRING_ZIPKIN_BASE_URL
-              value: http://zipkin:9411
+              value: service-discovery.ecommerce-ns.svc.cluster.local
+          envFrom:
+            - configMapRef:
+                name: common-environment-variables
           image: selimhorri/service-discovery-ecommerce-boot:0.1.0
-          livenessProbe:
-            exec:
-              command:
-                - wget
-                - --no-verbose
-                - --tries=1
-                - --spider
-                - http://localhost:8761/actuator/health
-            failureThreshold: 5
-            initialDelaySeconds: 120
-            periodSeconds: 30
-            timeoutSeconds: 10
-          name: service-discovery-container
+          name: service-discovery
           ports:
             - containerPort: 8761
               protocol: TCP
           resources:
             requests:
-              cpu: "200m"
-              memory: "128Mi"
+              memory: "512Mi"
+              cpu: "300m"
               ephemeral-storage: "1Gi"
             limits:
-              cpu: "500m"
-              memory: "1Gi"
+              memory: "768Mi"
+              cpu: "750m"
               ephemeral-storage: "2Gi"
       restartPolicy: Always

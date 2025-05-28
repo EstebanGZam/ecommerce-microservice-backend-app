@@ -1,12 +1,8 @@
-
 version: '3'
 services:
-  payment-service-container:
+  payment-service:
     image: selimhorri/payment-service-ecommerce-boot:0.1.0
     ports:
       - 8400:8400
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-
-
-
