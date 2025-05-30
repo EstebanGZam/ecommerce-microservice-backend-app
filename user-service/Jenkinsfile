@@ -42,22 +42,6 @@ pipeline {
                 }
             }
             post {
-                always {
-                    dir('user-service') {
-                        // Publicar resultados de pruebas
-                        publishTestResults testResultsPattern: 'target/surefire-reports/*.xml'
-                        
-                        // Publicar cobertura de código
-                        publishHTML([
-                            allowMissing: false,
-                            alwaysLinkToLastBuild: false,
-                            keepAll: true,
-                            reportDir: 'target/site/jacoco',
-                            reportFiles: 'index.html',
-                            reportName: 'Coverage Report'
-                        ])
-                    }
-                }
                 success {
                     echo "✅ Todas las pruebas unitarias pasaron"
                 }
