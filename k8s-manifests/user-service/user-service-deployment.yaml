@@ -28,7 +28,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: common-environment-variables
-          image: esteban282/user-service-ecommerce-boot:0.1.0
+          image: esteban282/user-service:latest-dev
           name: user-service
           ports:
             - containerPort: 8700

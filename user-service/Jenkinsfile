@@ -122,7 +122,7 @@ pipeline {
                         echo "Imagen: ${env.DOCKER_IMAGE}"
                         echo "Perfil: ${SPRING_PROFILES_ACTIVE}"
                         
-                        kubectl apply -f k8s/
+                        kubectl apply -f k8s-manifests/user-service/
                     """
                 }
             }
