@@ -1,0 +1,183 @@
+pipeline {
+    agent any
+    
+    environment {
+        SPRING_PROFILES_ACTIVE = 'dev'
+        MAVEN_OPTS = '-Xmx512m'
+        SERVICE_NAME = 'user-service'
+        VERSION = "${BUILD_NUMBER}"
+    }
+    
+    tools {
+        maven 'Maven-3.8.6'
+        jdk 'Java-11'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "🔄 Obteniendo código fuente..."
+                checkout scm
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                echo "🔨 Compilando aplicación..."
+                dir('user-service') {
+                    sh 'mvn clean compile'
+                }
+            }
+        }
+        
+        stage('Unit Tests') {
+            steps {
+                echo "🧪 Ejecutando pruebas unitarias..."
+                dir('user-service') {
+                    sh '''
+                        mvn test \
+                        -Dspring.profiles.active=test \
+                        -Dmaven.test.failure.ignore=false
+                    '''
+                }
+            }
+            post {
+                always {
+                    dir('user-service') {
+                        // Publicar resultados de pruebas
+                        publishTestResults testResultsPattern: 'target/surefire-reports/*.xml'
+                        
+                        // Publicar cobertura de código
+                        publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: false,
+                            keepAll: true,
+                            reportDir: 'target/site/jacoco',
+                            reportFiles: 'index.html',
+                            reportName: 'Coverage Report'
+                        ])
+                    }
+                }
+                success {
+                    echo "✅ Todas las pruebas unitarias pasaron"
+                }
+                failure {
+                    echo "❌ Las pruebas unitarias fallaron"
+                    error("Deteniendo pipeline - pruebas unitarias fallaron")
+                }
+            }
+        }
+        
+        stage('Package') {
+            steps {
+                echo "📦 Empaquetando aplicación..."
+                dir('user-service') {
+                    sh 'mvn package -DskipTests'
+                }
+            }
+            post {
+                success {
+                    dir('user-service') {
+                        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                    }
+                    echo "✅ Aplicación empaquetada correctamente"
+                }
+            }
+        }
+        
+        stage('Docker Build') {
+            steps {
+                echo "🐳 Construyendo imagen Docker..."
+                dir('user-service') {
+                    script {
+                        def imageName = "${SERVICE_NAME}:${VERSION}-dev"
+                        def dockerImage = docker.build(imageName)
+                        env.DOCKER_IMAGE = imageName
+                        
+                        // Tag como latest para desarrollo
+                        dockerImage.tag("${SERVICE_NAME}:latest-dev")
+                    }
+                }
+            }
+            post {
+                success {
+                    echo "✅ Imagen Docker construida: ${env.DOCKER_IMAGE}"
+                }
+            }
+        }
+        
+        stage('Deploy to Dev') {
+            when {
+                anyOf {
+                    branch 'develop'
+                    branch 'main'
+                }
+            }
+            steps {
+                echo "🚀 Desplegando en entorno de desarrollo..."
+                script {
+                    // Simular despliegue - aquí conectarías con tu entorno real
+                    sh """
+                        echo "Desplegando ${SERVICE_NAME} versión ${VERSION}"
+                        echo "Imagen: ${env.DOCKER_IMAGE}"
+                        echo "Perfil: ${SPRING_PROFILES_ACTIVE}"
+                        
+                        kubectl apply -f k8s/
+                    """
+                }
+            }
+            post {
+                success {
+                    echo "✅ Despliegue en DEV completado"
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo "🧹 Limpiando recursos..."
+            sh 'docker system prune -f --filter until=1h || true'
+        }
+        
+        success {
+            script {
+                // Generar release notes simples
+                def releaseNotes = """
+# Release ${SERVICE_NAME} v${VERSION}
+
+**Build:** ${BUILD_NUMBER}  
+**Environment:** Development  
+**Date:** ${new Date()}  
+**Branch:** ${env.BRANCH_NAME}
+
+## Artifacts
+- JAR: target/${SERVICE_NAME}-v${VERSION}.jar
+- Docker Image: ${env.DOCKER_IMAGE}
+
+## Status
+✅ Build successful  
+✅ Unit tests passed  
+✅ Package created  
+✅ Docker image built
+"""
+                
+                writeFile file: 'release-notes.md', text: releaseNotes
+                archiveArtifacts artifacts: 'release-notes.md'
+            }
+            
+            echo "🎉 Pipeline completado exitosamente!"
+        }
+        
+        failure {
+            echo "💥 Pipeline falló - revisar logs"
+            
+            // Notificación básica por email (opcional)
+            emailext (
+                subject: "❌ [${SERVICE_NAME}] Build ${BUILD_NUMBER} Failed",
+                body: "El build del user-service falló. Ver: ${BUILD_URL}",
+                to: "dev-team@company.com"
+            )
+        }
+    }
+}
